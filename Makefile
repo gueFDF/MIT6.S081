@@ -149,7 +149,8 @@ UPROGS=\
 	$U/_grind\
 	$U/_wc\
 	$U/_zombie\
-
+	$U/_copy\
+	$U/_sleep\
 
 ifeq ($(LAB),syscall)
 UPROGS += \
