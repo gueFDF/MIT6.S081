@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/gty/vscode/MIT6.S081/xv6-labs-2020/user'
+make: Leaving directory '/home/gty/vscode/MIT6.S081/xv6-labs-2020/user'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+
