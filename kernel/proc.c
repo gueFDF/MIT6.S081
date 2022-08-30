@@ -18,7 +18,6 @@ struct spinlock pid_lock;
 extern void forkret(void);
 static void wakeup1(struct proc *chan);
 static void freeproc(struct proc *p);
-
 extern char trampoline[]; // trampoline.S
 
 // initialize the proc table at boot time.
@@ -692,4 +691,21 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+uint64 acquire_nproc() //获取正在被使用的线程数
+{
+    struct proc *p;
+    uint64 cnt=0;
+  for(p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+    if(p->state != UNUSED) {
+        cnt++;
+    } 
+     
+      release(&p->lock);
+    
+  }
+  return cnt;
+
 }
