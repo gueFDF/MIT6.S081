@@ -101,8 +101,7 @@ extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
 extern uint64 sys_sysinfo(void);
-
-
+extern uint64 sys_trace(void);
 
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -127,11 +126,12 @@ static uint64 (*syscalls[])(void) = {
     [SYS_mkdir] sys_mkdir,
     [SYS_close] sys_close,
     [SYS_sysinfo] sys_sysinfo,
+    [SYS_trace] sys_trace,
 };
 
-/*static char *syscall_names[] = {
+static char *syscall_names[] = {
     "fork", "exit", "wait", "pipe", "read", "kill", "exec", "fstat", "chdir", "dup", "getpid", "sbrk", "sleep",
-    "uptime", "open", "write", "mknod", "unlink", "link", "mkdir", "close", "sysinfo"};*/
+    "uptime", "open", "write", "mknod", "unlink", "link", "mkdir", "close", "sysinfo", "trace"};
 
 void syscall(void)
 {
@@ -142,6 +142,10 @@ void syscall(void)
   if (num > 0 && num < NELEM(syscalls) && syscalls[num])
   {
     p->trapframe->a0 = syscalls[num]();
+    if ((p->trace_mask >> num) & 1) //判断是否调用了trace
+    {
+      printf("%d: syscall %s -> %d\n", p->pid, syscall_names[num - 1], p->trapframe->a0);
+    }
   }
   else
   {

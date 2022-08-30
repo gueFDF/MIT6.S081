@@ -148,6 +148,7 @@ freeproc(struct proc *p)
   p->chan = 0;
   p->killed = 0;
   p->xstate = 0;
+  p->trace_mask=0;//化掩码置为0
   p->state = UNUSED;
 }
 
@@ -293,7 +294,7 @@ fork(void)
   pid = np->pid;
 
   np->state = RUNNABLE;
-
+  np->trace_mask=p->trace_mask;//子进程继承父进程的掩码
   release(&np->lock);
 
   return pid;
