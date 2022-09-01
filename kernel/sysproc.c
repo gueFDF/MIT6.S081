@@ -121,5 +121,6 @@ sys_trace(void)
   if (argint(0, &mask) < 0)  //获取掩码
     return -1;
   myproc()->trace_mask = mask;
+  printf("mask:%d\n",mask);
   return 0;
 }

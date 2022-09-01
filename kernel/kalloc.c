@@ -82,7 +82,7 @@ kalloc(void)
   return (void*)r;
 }
 
-uint64 acquire_freemem()//获取空闲内存
+uint64 acquire_freemem()//获取空闲内存数量
 {
   struct run *r;
   uint64 cnt=0;
