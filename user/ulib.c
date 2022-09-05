@@ -6,9 +6,6 @@
 #include "kernel/memlayout.h"
 #endif
 #include "user/user.h"
-
-
-
 char*
 strcpy(char *s, const char *t)
 {
