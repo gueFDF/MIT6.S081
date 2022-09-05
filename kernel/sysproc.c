@@ -98,7 +98,7 @@ int sys_pgaccess(void)
     return -1;
   }
   int res = 0;
-  for (int i = 0; i < addr; i ++)
+  for (int i = 0; i < len; i ++)
   {
     int va=addr+i*PGSIZE;
     int abit = vm_pgacess(p->pagetable, va);
