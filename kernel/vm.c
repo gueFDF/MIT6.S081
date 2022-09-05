@@ -451,9 +451,9 @@ void vmprint(pagetable_t pagetable, uint64 lv)
   char *vmarr[4];
   vmarr[0] = "..";
   vmarr[1] = ".. ..";
-  vmarr[2]=".. .. ..";
-  if(lv>2)
-  return;
+  vmarr[2] = ".. .. ..";
+  if (lv > 2)
+    return;
   if (lv == 0)
   {
     printf("page table %p\n", pagetable);
@@ -466,8 +466,26 @@ void vmprint(pagetable_t pagetable, uint64 lv)
       // this PTE points to a lower-level page table.
       uint64 child = PTE2PA(pte);
       printf("%s%d: pte %p pa %p\n", vmarr[lv], i, pte, child);
-      vmprint((pagetable_t)child, lv+1);
-  
+      vmprint((pagetable_t)child, lv + 1);
     }
   }
+}
+int vm_pgacess(pagetable_t pagetable, uint64 va)
+{
+  pte_t *pte;
+
+  if (va >= MAXVA)
+    return 0;
+
+  pte = walk(pagetable, va, 0);
+  if (pte == 0)
+    return 0;
+  if ((*pte & PTE_V) == 0)
+    return 0;
+  if ((*pte & PTE_A) != 0)
+  {
+    *pte = *pte & (~PTE_A);//置零
+    return 1;
+  }
+  return 0;
 }
