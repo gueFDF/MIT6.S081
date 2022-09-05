@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/gty/vscode/MIT6.S081'
+make: Leaving directory '/home/gty/vscode/MIT6.S081'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+
