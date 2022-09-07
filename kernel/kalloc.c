@@ -28,6 +28,8 @@ kinit()
 {
   initlock(&kmem.lock, "kmem");
   freerange(end, (void*)PHYSTOP);
+  //printf("end:     %p\n",end);
+  //printf("PHYSTOP: %p\n",PHYSTOP);
 }
 
 void
