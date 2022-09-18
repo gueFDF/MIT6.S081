@@ -654,3 +654,44 @@ procdump(void)
     printf("\n");
   }
 }
+
+uint64 is_cow(uint64 va)
+{
+  pte_t *pte;
+  struct proc *p = myproc();
+  pte=walk(p->pagetable,va,0);
+  if(pte==0)
+  return 0;
+  return (*pte&PTE_V)&&(*pte&PTE_COW);
+}
+void alloc_cow(uint64 va)
+{
+  uint64 pa;
+  struct proc *p = myproc();
+  va = PGROUNDDOWN(va);
+  char *mem;
+  mem = kalloc();
+  pte_t*pte=walk(p->pagetable,va,0);//获取物理地址
+  pa = PTE2PA(*pte);
+  if (mem == 0)
+  {
+   // printf("kalloc error\n");
+    p->killed = 1;
+  }
+  else
+  {
+    //获取权限
+    int flag=PTE_FLAGS(*pte);
+    flag&=~PTE_COW;
+    flag|=PTE_W;
+     memmove(mem, (char*)pa, PGSIZE);
+     //先解除原先的映射
+    uvmunmap(p->pagetable,va,1,1);//解除原先的映射
+    if (mappages(p->pagetable, va, PGSIZE, (uint64)mem, flag) != 0)
+    {
+      kfree(mem);
+      printf("映射失败\n");
+      p->killed = 1;
+    }
+  }
+}

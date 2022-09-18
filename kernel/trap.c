@@ -67,7 +67,21 @@ usertrap(void)
     syscall();
   } else if((which_dev = devintr()) != 0){
     // ok
-  } else {
+  } 
+  else if(r_scause()==15||r_scause()==13)//页面错误
+  {
+    uint64 va=r_stval();//获取出错地址
+    if(is_cow(va))
+    {
+      alloc_cow(va);
+    }
+    else
+    {
+      p->killed=1;
+    }
+    
+  }
+  else {
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
     p->killed = 1;
