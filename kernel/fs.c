@@ -711,7 +711,7 @@ namex(char *path, int nameiparent, char *name)
     {
       // Stop one level early.
       iunlock(ip);
-      return ip;
+      return ip;  //return is parent'sinode
     }
     if ((next = dirlookup(ip, name, 0)) == 0)
     {

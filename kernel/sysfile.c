@@ -283,6 +283,34 @@ create(char *path, short type, short major, short minor)
   return ip;
 }
 
+
+// 返回如果不为 0, 计数 +1
+static struct inode* namei_check_symlink(char *path, uint depth, int omode) {
+    // 利用一个显式的递归深度检测环
+    if(depth > 10) {
+        return 0;
+    }
+    struct inode *ip;
+    // 文件不存在(symlink 允许 target 不存在)
+    if((ip = namei(path)) == 0){
+        return 0;
+    }
+    ilock(ip);
+    // 如果带有 O_NOFOLLOW flag, 则只需要打开软链接文件本身
+    if(!(omode & O_NOFOLLOW) && ip->type == T_SYMLINK) {
+        char next[MAXPATH];
+        // 保存在 data 的开始
+        if(readi(ip, 0, (uint64)next, 0, MAXPATH) == 0) {
+            iunlock(ip);
+            return 0;
+        }
+        iunlock(ip);
+        iput(ip); // 接着下一个文件了, 因此当前文件的引用计数-1
+        return namei_check_symlink(next, depth + 1 ,omode);
+    }
+    iunlock(ip);
+    return ip;
+}
 uint64
 sys_open(void)
 {
@@ -307,6 +335,10 @@ sys_open(void)
     if((ip = namei(path)) == 0){
       end_op();
       return -1;
+    }
+    if((ip = namei_check_symlink(path , 0, omode)) == 0) {
+        end_op();
+        return -1;
     }
     ilock(ip);
     if(ip->type == T_DIR && omode != O_RDONLY){
@@ -483,4 +515,33 @@ sys_pipe(void)
     return -1;
   }
   return 0;
+}
+uint64 sys_symlink(void)
+{
+  struct inode*ip;
+  char target[MAXPATH],path[MAXPATH];
+  //获取参数
+  if(argstr(0,target,MAXPATH)<0||argstr(1,target,MAXPATH)<0)
+  {
+    return -1;
+  }
+  begin_op();
+  ip=create(path,T_SYMLINK,0,0);//创建inode
+  if(ip==0)
+  {
+    end_op();
+    return -1;
+  }
+
+  // use the first data block to store target path.
+  if(writei(ip, 0, (uint64)target, 0, strlen(target)) < 0) {
+    end_op();
+    return -1;
+  }
+
+  iunlockput(ip);
+
+  end_op();
+  return 0;
+
 }
